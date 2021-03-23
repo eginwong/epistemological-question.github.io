@@ -1,0 +1,121 @@
+<!-- http://atomicrobotdesign.com/blog/htmlcss/create-a-sprite-sheet-walk-cycle-using-using-css-animation/ -->
+
+<!-- https://css-tricks.com/creating-a-css-sliding-background-effect/ -->
+<html>
+
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+  <link rel="stylesheet" href="sample.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="background"></div>
+    <div class="text-blurb">
+      <div class="text-content">Use ◀️ and ▶️ keys</div>
+    </div>
+    <div class="interaction">
+      <div class="sprite"></div>
+    </div>
+
+  </div>
+</body>
+<script>
+  (function () {
+    const WALK_SPEED = 20;
+    let globalLocationCounter = 0;
+
+    const containerElt = document.querySelector('.container');
+    const textContentElt = document.querySelector('.text-content');
+    var sprite = document.querySelector('.sprite'),
+      key = { left: false, right: false },
+      trans = 0,
+      property = getTransformProperty(sprite);
+
+    function getTransformProperty(element) {
+      var properties = [
+        'transform',
+        'WebkitTransform',
+        'msTransform',
+        'MozTransform',
+        'OTransform'
+      ];
+      var p;
+      while (p = properties.shift()) {
+        if (typeof element.style[p] != 'undefined') {
+          return p;
+        }
+      }
+      return false;
+    }
+
+    function translate(reverse = false) {
+      sprite.style[property] = `scale(2) translateX(${trans}px)${reverse ? ' scaleX(-1)' : ''}`;
+    }
+    var velocity = 0;
+    var direction = null;
+
+    function walk(e) {
+      var keyCode = e.keyCode;
+      if (keyCode === 39) {
+        key.right = true;
+        if (direction !== 'right') {
+          velocity = 0;
+          direction = 'right' ;
+        }
+        velocity++;
+      } else if (keyCode === 37) {
+        key.left = true;
+        if (direction !== 'left') {
+          velocity = 0;
+          direction = 'left' ;
+        }
+        velocity++;
+      }
+      if (key.right === true) {
+        trans += velocity < WALK_SPEED ? 5 : 10;
+        globalLocationCounter += velocity < WALK_SPEED ? 5 : 10;
+      } else if (key.left === true) {
+        trans -= velocity < WALK_SPEED ? 5 : 10;
+        globalLocationCounter -= velocity < WALK_SPEED ? 5 : 10;
+      }
+      translate(!key.right);
+      // if (velocity > WALK_SPEED) {
+      //   sprite.classList.remove('walk');
+      // }
+      // sprite.classList.add(velocity > WALK_SPEED ? 'run' : 'walk');
+      sprite.classList.add('walk');
+      console.log(`Location: ${globalLocationCounter}`)
+      if (globalLocationCounter >= window.screen.width / 6) {
+        textContentElt.textContent = "PHS 611: \nEpistemology and Abstraction\n\n Eric Wong"
+        textContentElt.style['font-size'] = '60px';
+        stop(e);
+        document.removeEventListener('keydown', walk);
+        setTimeout(() => {
+          document.addEventListener('keydown', walk, false);
+
+        }, 1000);
+      }
+    }
+
+    function stop(e) {
+      console.log('STOPPPED');
+      var keyCode = e.keyCode;
+      if (keyCode === 39) {
+        key.right = false;
+      } else if (keyCode === 37) {
+        key.left = false;
+      }
+      sprite.classList.remove(velocity > WALK_SPEED ? 'run' : 'walk');
+      velocity = 0;
+    }
+
+    document.addEventListener('keydown', walk, false);
+    document.addEventListener('keyup', stop, false);
+
+  })();
+</script>
+
+</html>
+
+<!-- play with speed of animation to screw around with thinking -->

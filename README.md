@@ -1,1 +1,5 @@
-# epistemological-question.github.io
+# Inspirations
+
+## Resources
+- Flatboy assets
+- sprite css code
